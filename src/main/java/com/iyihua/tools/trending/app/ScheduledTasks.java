@@ -1,39 +1,77 @@
 package com.iyihua.tools.trending.app;
 
-import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.iyihua.tools.trending.entity.Repository;
 
 @Component
 public class ScheduledTasks {
 
-    private static final Logger log = LoggerFactory.getLogger(ScheduledTasks.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ScheduledTasks.class);
 
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-    public final static long ONE_Minute =  60 * 1000;
+	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("HH:mm:ss");
+	public final static long ONE_MINUTE = 60 * 1000;
+	public final static long ONE_DAY = 1000 * 60 * 60 * 24;
 
-//    @Scheduled(cron="0 15 12 * * ?")
-    @Scheduled(fixedDelay=ONE_Minute)
-    public void reportCurrentTime() {
-        log.info("The time is now {}", dateFormat.format(new Date()));
-        log.info("now the task begin..............................");
-        try {
-			Document doc = Jsoup.connect("https://github.com/trending").get();
-			Elements elements = doc.select(".repo-list");
-			for (Element element : elements) {
-				System.err.println(element.text());
+	@Value("${config.register.language}")
+	private String CONFIG_REGISTER_LANGUAGE;
+
+	// @Scheduled(cron="0 15 12 * * ?")
+//	@Scheduled(fixedDelay = ONE_MINUTE)
+	@Scheduled(fixedRate = ONE_DAY)
+	public void reportCurrentTime() {
+		LOGGER.info("The time is now {}", DATE_FORMAT.format(new Date()));
+		LOGGER.info("now the task begin..............................");
+
+		String[] lans = CONFIG_REGISTER_LANGUAGE.split(",");
+		Map<String, List<Repository>> maps = Maps.newHashMap();
+		for (String lan : lans) {
+			List<Repository> repositorys = Lists.newArrayList();
+			try {
+				repositorys = HttpJsoupHelper.loadGitTrending(lan);
+			} catch (SocketTimeoutException e) {
+				e.printStackTrace();
+				LOGGER.error("loading repository " + lan + "failure!", e);
+				try {
+					repositorys = HttpJsoupHelper.loadGitTrending(lan);
+				} catch (SocketTimeoutException e1) {
+					e1.printStackTrace();
+					LOGGER.error("loading repository " + lan + "failure again! pass continue...", e);
+				}
 			}
-		} catch (IOException e) {
-			e.printStackTrace();
+
+			maps.put(lan, repositorys);
 		}
-    }
+
+		StringBuilder sb = new StringBuilder();
+		for (String key : maps.keySet()) {
+			LOGGER.info("begin to get content of : " + key);
+			sb.append("\n\n\n## ").append(key).append("\n");
+			List<Repository> vs = maps.get(key);
+			if (null == vs)
+				continue;
+			for (Repository repository : vs) {
+				LOGGER.info(repository.toString());
+				sb.append("\n- ").append("[").append(repository.getTitle()).append("](").append(repository.getLink())
+						.append(") : ").append(repository.getDescription());
+			}
+		}
+
+		FileHelper.write(sb.toString());
+		
+		GitHelper.proccess();
+	}
+
 }
