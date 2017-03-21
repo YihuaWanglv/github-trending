@@ -15,23 +15,23 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.iyihua.tools.trending.core.FileHelper;
-import com.iyihua.tools.trending.core.GitHelper;
 import com.iyihua.tools.trending.core.HttpJsoupHelper;
+import com.iyihua.tools.trending.core.StaticConfig;
 import com.iyihua.tools.trending.entity.Repository;
 
-//@Component
-public class ScheduledTasks {
+@Component
+public class TaskGithubTrending {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(ScheduledTasks.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(TaskGithubTrending.class);
 
 	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("HH:mm:ss");
 	public final static long ONE_MINUTE = 60 * 1000;
 	public final static long ONE_DAY = 1000 * 60 * 60 * 24;
 
-	@Value("${config.register.language}")
+	@Value("${config.register.module.github}")
 	private String CONFIG_REGISTER_LANGUAGE;
 
-//	@Scheduled(fixedRate = ONE_DAY)
+	@Scheduled(fixedRate = ONE_DAY)
 	public void reportCurrentTime() {
 		LOGGER.info("The time is now {}", DATE_FORMAT.format(new Date()));
 		LOGGER.info("now the task begin..............................");
@@ -70,9 +70,9 @@ public class ScheduledTasks {
 			}
 		}
 
-		FileHelper.write(sb.toString());
-		
-		GitHelper.proccess();
+		FileHelper.writeModule(StaticConfig.Repository.GITHUB, sb.toString());
+
+//		GitHelper.proccess();
 	}
 
 }

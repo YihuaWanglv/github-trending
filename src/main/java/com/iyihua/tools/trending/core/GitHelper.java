@@ -1,4 +1,4 @@
-package com.iyihua.tools.trending.app;
+package com.iyihua.tools.trending.core;
 
 import java.io.BufferedReader;
 import java.io.IOException;

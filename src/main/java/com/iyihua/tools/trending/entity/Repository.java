@@ -17,5 +17,7 @@ public class Repository {
 	private String title;
 	private String link;
 	private String description;
+	private String module;
+	private String repository;
 	
 }

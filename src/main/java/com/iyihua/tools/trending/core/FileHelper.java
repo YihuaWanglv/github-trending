@@ -1,4 +1,4 @@
-package com.iyihua.tools.trending.app;
+package com.iyihua.tools.trending.core;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,6 +28,32 @@ public class FileHelper {
 	public static void main(String[] args) {
 
 		write("- 你是谁.");
+	}
+
+	public static void writeModule(String repository, String content) {
+
+		content = "\n" + content;
+		Date time = new Date();
+		String date = DATE_FORMAT_DATE.format(time);
+		String year = DATE_FORMAT_YEAR.format(time);
+		File repositoryFile = new File(repository);
+		File y = new File(repository + File.separator + year);
+		String filePath = repository + File.separator + year + File.separator + date + ".md";
+		try {
+			if (!repositoryFile.exists()) {
+				LOGGER.info("path[" + repository + "] not exist. then create dir");
+				repositoryFile.mkdirs();
+			}
+			if (!y.exists()) {
+				LOGGER.info("path[" + year + "] not exist. then create dir");
+				y.mkdirs();
+			}
+			writeContent(filePath, content);
+		} catch (IOException e) {
+			e.printStackTrace();
+			LOGGER.error("Write error!", e);
+		}
+
 	}
 
 	public static void write(String content) {

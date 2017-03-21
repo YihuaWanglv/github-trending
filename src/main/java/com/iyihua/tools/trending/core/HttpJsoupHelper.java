@@ -1,11 +1,8 @@
-package com.iyihua.tools.trending.app;
+package com.iyihua.tools.trending.core;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -26,69 +23,58 @@ import com.iyihua.tools.trending.entity.Repository;
 public class HttpJsoupHelper {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(HttpJsoupHelper.class);
-	public static final String GITHUB_HOST = "https://github.com";
 
-	public static void loadGitTrending() {
+	public static List<Repository> loadOschinaExplore(String module) throws SocketTimeoutException {
+		List<Repository> list = Lists.newArrayList();
 		try {
-
-			Map<String, List<Repository>> keySet = new HashMap<String, List<Repository>>();
-			keySet.put("Java", new ArrayList<Repository>());
-
-			Document doc = Jsoup.connect("https://github.com/trending").get();
-			Elements elements = doc.select(".repo-list > li");
+			Document doc = Jsoup.connect(StaticConfig.Host.OSCHINA + "/explore/" + module).get();
+			Elements elements = doc.select("#git-discover-list > .item");
 			for (Element element : elements) {
 				String title = "";
 				String link = "";
 				String descr = "";
 				String lan = "";
-				Elements lanElements = element.select("span[itemprop=programmingLanguage]");
-				for (Element lanE : lanElements) {
-					lan = lanE.text();
+				Elements contents = element.select(".content");
+				for (Element content : contents) {
+					Elements titles = content.select(".project-title > a");
+					if (titles != null && titles.size() > 0) {
+						Element titleElement = titles.get(0);
+						title = titleElement.text();
+						link = titleElement.attr("href");
+					}
+					Elements langs = content.select(".lang-label > a");
+					if (langs != null && langs.size() > 0) {
+						Element langElement = langs.get(0);
+						lan = langElement.text();
+					}
+					Elements descs = content.select(".project-desc");
+					if (descs != null && descs.size() > 0) {
+						Element descElement = descs.get(0);
+						descr = descElement.text();
+					}
 				}
-				System.out.println(lan);
-
-				if (!keySet.containsKey(lan)) {
-					continue;
-				}
-
-				Elements titles = element.select(".d-inline-block > h3 > a");
-
-				for (Element titleElement : titles) {
-					title = titleElement.text();
-					link = titleElement.attr("href");
-				}
-				System.err.println(title);
-				System.err.println(link);
-
-				Elements descrElements = element.select(".py-1 > p");
-				for (Element descrElement : descrElements) {
-					descr = descrElement.text();
-				}
-				System.out.println(descr);
-
-				keySet.get(lan).add(Repository.builder().language(lan).title(title).link(GITHUB_HOST + link)
-						.description(descr).build());
+				LOGGER.info("[title]" + title);
+				LOGGER.info("[link]" + link);
+				LOGGER.info("[description]" + descr);
+				LOGGER.info("[lang]" + lan);
+				list.add(Repository.builder().language(lan).title(title).link(StaticConfig.Host.OSCHINA + link)
+						.description(descr).module(module).repository(module).build());
 
 			}
 			System.err.println("---------------------------------------");
-			System.err.println("---------------------------------------");
-			System.err.println("---------------------------------------");
-			for (String key : keySet.keySet()) {
-				System.err.println(key);
-				List<Repository> vs = keySet.get(key);
-				for (Repository repository : vs) {
-					System.out.println(repository.toString());
-				}
+			for (Repository repository : list) {
+				LOGGER.info(repository.toString());
 			}
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		return list;
 	}
 
 	public static List<Repository> loadGitTrending(String lan) throws SocketTimeoutException {
 		List<Repository> list = Lists.newArrayList();
 		try {
-			Document doc = Jsoup.connect("https://github.com/trending/" + lan).get();
+			Document doc = Jsoup.connect(StaticConfig.Host.GITHUB + "/trending/" + lan).get();
 			Elements elements = doc.select(".repo-list > li");
 			for (Element element : elements) {
 				String title = "";
@@ -99,16 +85,16 @@ public class HttpJsoupHelper {
 					title = titleElement.text();
 					link = titleElement.attr("href");
 				}
-				LOGGER.info("[title]"+title);
-				LOGGER.info("[link]"+link);
+				LOGGER.info("[title]" + title);
+				LOGGER.info("[link]" + link);
 
 				Elements descrElements = element.select(".py-1 > p");
 				for (Element descrElement : descrElements) {
 					descr = descrElement.text();
 				}
-				LOGGER.info("[description]"+descr);
-				list.add(Repository.builder().language(lan).title(title).link(GITHUB_HOST + link).description(descr)
-						.build());
+				LOGGER.info("[description]" + descr);
+				list.add(Repository.builder().language(lan).title(title).link(StaticConfig.Host.GITHUB + link)
+						.description(descr).module(lan).build());
 
 			}
 			System.err.println("---------------------------------------");
