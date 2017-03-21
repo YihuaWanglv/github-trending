@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.iyihua.tools.trending.core.FileHelper;
+import com.iyihua.tools.trending.core.GitHelper;
 import com.iyihua.tools.trending.core.HttpJsoupHelper;
 import com.iyihua.tools.trending.core.StaticConfig;
 import com.iyihua.tools.trending.entity.Repository;
@@ -71,7 +72,7 @@ public class TaskOschinaExplore {
 
 		FileHelper.writeModule(StaticConfig.Repository.OSCHINA, sb.toString());
 
-//		GitHelper.proccess();
+		GitHelper.proccess();
 	}
 
 }
