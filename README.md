@@ -44,5 +44,5 @@ nohup java -jar java-github-trending.jar < /dev/null > /data/logs/java-github-tr
 
 
 ## also see python version here.
-- [����һ���Լ�д��github-trendingС����](http://www.jianshu.com/p/25722080c73d?hmsr=toutiao.io&utm_medium=toutiao.io&utm_source=toutiao.io)
+- [分享一个自己写的github-trending小工具](http://www.jianshu.com/p/25722080c73d?hmsr=toutiao.io&utm_medium=toutiao.io&utm_source=toutiao.io)
 
