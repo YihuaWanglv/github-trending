@@ -32,7 +32,7 @@ mvn clean package
 
 ### nohu run github-trending.jar
 ```
-nohup java -jar github-trending.jar < /dev/null > /data/logs/github-trending.log 2>&1 &
+nohup java -jar java-github-trending.jar < /dev/null > /data/logs/java-github-trending.log 2>&1 &
 ```
 
 ## how it works?
@@ -44,5 +44,5 @@ nohup java -jar github-trending.jar < /dev/null > /data/logs/github-trending.log
 
 
 ## also see python version here.
-- [·ÖÏíÒ»¸ö×Ô¼ºÐ´µÄgithub-trendingÐ¡¹¤¾ß](http://www.jianshu.com/p/25722080c73d?hmsr=toutiao.io&utm_medium=toutiao.io&utm_source=toutiao.io)
+- [ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Ô¼ï¿½Ð´ï¿½ï¿½github-trendingÐ¡ï¿½ï¿½ï¿½ï¿½](http://www.jianshu.com/p/25722080c73d?hmsr=toutiao.io&utm_medium=toutiao.io&utm_source=toutiao.io)
 
